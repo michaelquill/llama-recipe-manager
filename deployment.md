@@ -73,20 +73,25 @@ bun install
 *(Or `npm install` if using Node)*
 
 ### Step 2: Build the Release Package
-Run the Tauri build command:
+For local builds, disable updater signature generation (which requires upstream's private release signing key):
 
 ```bash
-bun run tauri build
+bun run tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'
 ```
-*(Or `npx tauri build` if using npm)*
+*(Or `npx tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'` if using npm)*
+
+> [!NOTE]
+> If you run `bun run tauri build` without disabling updater artifacts, you will see:
+> `Error: A public key has been found, but no private key. Make sure to set TAURI_SIGNING_PRIVATE_KEY`
+> **This does NOT affect your build!** The `.deb` and `.AppImage` packages are already completely built and written to disk before this error occurs.
 
 During the build process:
 1. The SvelteKit frontend is compiled into `build/`.
 2. Cargo builds the optimized Rust binary with all dependencies.
 3. Tauri packages the outputs into `.deb` and `.AppImage` bundles under:
    ```
-   src-tauri/target/release/bundle/deb/
-   src-tauri/target/release/bundle/appimage/
+   src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.5.0_amd64.deb
+   src-tauri/target/release/bundle/appimage/Llama Recipe Manager_0.5.0_amd64.AppImage
    src-tauri/target/release/llama-recipe-manager   (standalone binary)
    ```
 
@@ -100,7 +105,7 @@ You have three options to install your build. **Option A is recommended** as it 
 This directly replaces `/usr/bin/llama-recipe-manager` and refreshes desktop menu icons:
 
 ```bash
-sudo dpkg -i src-tauri/target/release/bundle/deb/llama-recipe-manager_*_amd64.deb
+sudo dpkg -i "src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.5.0_amd64.deb"
 ```
 
 ### Option B: Replace Standalone Binary
