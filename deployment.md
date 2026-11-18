@@ -147,3 +147,39 @@ chmod +x ~/Applications/llama-recipe-manager*.AppImage
    - Opening a recipe's detail view shows **"Export as INI preset…"** in the 3-dot dropdown.
    - Clicking the new **"Export all recipes as INI"** button in the sidebar header exports a unified `llama_models.ini` file.
    - Pressing `Ctrl+K` shows the `export all recipes ini` command in the Command Palette.
+
+---
+
+## 7. Troubleshooting & FAQ
+
+### Error: `TAURI_SIGNING_PRIVATE_KEY` not set
+
+```text
+    Finished 3 bundles at:
+        src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.5.0_amd64.deb
+        src-tauri/target/release/bundle/rpm/Llama Recipe Manager-0.5.0-1.x86_64.rpm
+        src-tauri/target/release/bundle/appimage/Llama Recipe Manager_0.5.0_amd64.AppImage
+
+A public key has been found, but no private key. Make sure to set `TAURI_SIGNING_PRIVATE_KEY` environment variable.
+       Error A public key has been found, but no private key. Make sure to set `TAURI_SIGNING_PRIVATE_KEY` environment variable.
+error: script "tauri" exited with code 1
+```
+
+#### Why does this happen?
+`src-tauri/tauri.conf.json` has `createUpdaterArtifacts: true` and an official `pubkey` for upstream GitHub Releases. After Tauri successfully creates the `.deb` and `.AppImage` packages, it attempts an extra step: creating cryptographically signed `.tar.gz.sig` files for the built-in auto-updater. Because the private key is only held by the upstream repository maintainer, Tauri errors on that final signature step.
+
+#### Is my build broken?
+**No.** Notice the lines immediately before the error:
+`Finished 3 bundles at: ...`
+The `.deb` installer and `.AppImage` are already 100% built, optimized, and ready to install!
+
+#### What to do:
+1. **Install the package that was just built:**
+   ```bash
+   sudo dpkg -i "src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.5.0_amd64.deb"
+   ```
+2. **Or avoid the error on future builds by disabling updater artifacts:**
+   ```bash
+   bun run tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'
+   ```
+   *(Or `npx tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'`)*
