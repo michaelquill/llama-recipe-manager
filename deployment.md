@@ -90,8 +90,8 @@ During the build process:
 2. Cargo builds the optimized Rust binary with all dependencies.
 3. Tauri packages the outputs into `.deb` and `.AppImage` bundles under:
    ```
-   src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.5.0_amd64.deb
-   src-tauri/target/release/bundle/appimage/Llama Recipe Manager_0.5.0_amd64.AppImage
+   src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.5.1_amd64.deb
+   src-tauri/target/release/bundle/appimage/Llama Recipe Manager_0.5.1_amd64.AppImage
    src-tauri/target/release/llama-recipe-manager   (standalone binary)
    ```
 
@@ -105,7 +105,7 @@ You have three options to install your build. **Option A is recommended** as it 
 This directly replaces `/usr/bin/llama-recipe-manager` and refreshes desktop menu icons:
 
 ```bash
-sudo dpkg -i "src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.5.0_amd64.deb"
+sudo dpkg -i "src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.5.1_amd64.deb"
 ```
 
 ### Option B: Replace Standalone Binary
@@ -176,7 +176,7 @@ The `.deb` installer and `.AppImage` are already 100% built, optimized, and read
 #### What to do:
 1. **Install the package that was just built:**
    ```bash
-   sudo dpkg -i "src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.5.0_amd64.deb"
+   sudo dpkg -i "src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.5.1_amd64.deb"
    ```
 2. **Or avoid the error on future builds by disabling updater artifacts:**
    ```bash
