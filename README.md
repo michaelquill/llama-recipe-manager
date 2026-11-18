@@ -58,7 +58,7 @@ Full build instructions: [`docs/Development.md`](./docs/Development.md)
 
 ## Documentation
 
-- [Development guide](./docs/Development.md) · [Security policy](./SECURITY.md) · [Contributing](./CONTRIBUTING.md)
+- [Local deployment guide](./deployment.md) · [Development guide](./docs/Development.md) · [Security policy](./SECURITY.md) · [Contributing](./CONTRIBUTING.md)
 - [Changelog](./CHANGELOG.md) · [Code of Conduct](./CODE_OF_CONDUCT.md)
 
 ## License
