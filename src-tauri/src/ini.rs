@@ -3,6 +3,7 @@
 //! Keys within a preset section correspond to llama-server arguments without leading dashes.
 //! Boolean flags default to `true`.
 
+use std::fmt::Write;
 use std::path::{Path, PathBuf};
 
 use crate::db::Recipe;
@@ -10,6 +11,7 @@ use crate::db::Recipe;
 pub const EXTENSION: &str = "ini";
 
 /// Appends `.ini` if missing.
+#[must_use]
 pub fn with_ini_extension(path: &str) -> PathBuf {
     let path = Path::new(path);
     if path.extension().is_some_and(|e| e == EXTENSION) {
@@ -55,28 +57,29 @@ pub fn all_to_ini(recipes: &[Recipe]) -> Result<String, String> {
 }
 
 fn format_recipe_section(out: &mut String, recipe: &Recipe) -> Result<(), String> {
-    out.push_str(&format!("[{}]\n", recipe.name));
-    out.push_str(&format!("model = {}\n", recipe.model_path));
+    let _ = writeln!(out, "[{}]", recipe.name);
+    let _ = writeln!(out, "model = {}", recipe.model_path);
 
     if !recipe.mmproj_path.is_empty() {
-        out.push_str(&format!("mmproj = {}\n", recipe.mmproj_path));
+        let _ = writeln!(out, "mmproj = {}", recipe.mmproj_path);
     }
 
     if !recipe.description.is_empty() {
-        out.push_str(&format!(
-            "; description: {}\n",
+        let _ = writeln!(
+            out,
+            "; description: {}",
             recipe.description.replace('\n', " ")
-        ));
+        );
     }
     if !recipe.tags.is_empty() {
-        out.push_str(&format!("; tags: {}\n", recipe.tags));
+        let _ = writeln!(out, "; tags: {}", recipe.tags);
     }
     if !recipe.gpu_info.is_empty() {
-        out.push_str(&format!("; gpu: {}\n", recipe.gpu_info));
+        let _ = writeln!(out, "; gpu: {}", recipe.gpu_info);
     }
 
     let tokens = shell_words::split(&recipe.command)
-        .map_err(|e| format!("Failed to parse recipe command: {}", e))?;
+        .map_err(|e| format!("Failed to parse recipe command: {e}"))?;
 
     let args: &[String] = if !tokens.is_empty()
         && (tokens[0] == "llama-server" || tokens[0].ends_with("/llama-server"))
@@ -93,14 +96,12 @@ fn format_recipe_section(out: &mut String, recipe: &Recipe) -> Result<(), String
 
         if let Some(rest) = arg.strip_prefix("--").or_else(|| arg.strip_prefix('-')) {
             if let Some((key, val)) = rest.split_once('=') {
-                if key == "m" || key == "model" || key == "mmproj" {
-                    // Already emitted at section top
-                } else {
+                if key != "m" && key != "model" && key != "mmproj" {
                     if key == "a" || key == "alias" {
                         alias_set = true;
-                        out.push_str(&format!("alias = {}\n", val));
+                        let _ = writeln!(out, "alias = {val}");
                     } else {
-                        out.push_str(&format!("{} = {}\n", key, val));
+                        let _ = writeln!(out, "{key} = {val}");
                     }
                 }
                 i += 1;
@@ -116,13 +117,13 @@ fn format_recipe_section(out: &mut String, recipe: &Recipe) -> Result<(), String
                     let val = &args[i + 1];
                     if key == "a" || key == "alias" {
                         alias_set = true;
-                        out.push_str(&format!("alias = {}\n", val));
+                        let _ = writeln!(out, "alias = {val}");
                     } else {
-                        out.push_str(&format!("{} = {}\n", key, val));
+                        let _ = writeln!(out, "{key} = {val}");
                     }
                     i += 2;
                 } else {
-                    out.push_str(&format!("{} = true\n", key));
+                    let _ = writeln!(out, "{key} = true");
                     i += 1;
                 }
             }
@@ -132,7 +133,7 @@ fn format_recipe_section(out: &mut String, recipe: &Recipe) -> Result<(), String
     }
 
     if !alias_set {
-        out.push_str(&format!("alias = {}\n", recipe.name));
+        let _ = writeln!(out, "alias = {}", recipe.name);
     }
 
     Ok(())
@@ -147,7 +148,7 @@ fn is_value_token(token: &str) -> bool {
     after_minus
         .chars()
         .next()
-        .map_or(false, |c| c.is_ascii_digit())
+        .is_some_and(|c| c.is_ascii_digit())
 }
 
 #[cfg(test)]
