@@ -29,23 +29,31 @@ cp ~/.local/share/com.ashar.llama-recipe-manager/recipes.db \
 ## 3. Prerequisites
 
 ### Rust Toolchain
+
 Ensure Rust stable (1.78+) is installed:
+
 ```bash
 rustc --version
 cargo --version
 ```
-*(If missing or outdated, update with `rustup update stable`)*
+
+_(If missing or outdated, update with `rustup update stable`)_
 
 ### Node / Bun
+
 Upstream uses Bun by default. If `bun` is not yet installed:
+
 ```bash
 curl -fsSL https://bun.sh/install | bash
 source ~/.bashrc
 ```
-*(Alternatively, you can use `npm` / Node v20+)*
+
+_(Alternatively, you can use `npm` / Node v20+)_
 
 ### System Dependencies (Ubuntu / Debian)
+
 Tauri 2 requires WebKit2GTK and related GUI libraries:
+
 ```bash
 sudo apt update && sudo apt install -y \
   libwebkit2gtk-4.1-dev \
@@ -64,21 +72,25 @@ sudo apt update && sudo apt install -y \
 ## 4. Compile From Source
 
 ### Step 1: Install Frontend Dependencies
+
 From the repository root:
 
 ```bash
 cd /media/michaelq/Data/anti_gravity/llama-recipe-manager
 bun install
 ```
-*(Or `npm install` if using Node)*
+
+_(Or `npm install` if using Node)_
 
 ### Step 2: Build the Release Package
+
 For local builds, disable updater signature generation (which requires upstream's private release signing key):
 
 ```bash
 bun run tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'
 ```
-*(Or `npx tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'` if using npm)*
+
+_(Or `npx tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'` if using npm)_
 
 > [!NOTE]
 > If you run `bun run tauri build` without disabling updater artifacts, you will see:
@@ -86,6 +98,7 @@ bun run tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'
 > **This does NOT affect your build!** The `.deb` and `.AppImage` packages are already completely built and written to disk before this error occurs.
 
 During the build process:
+
 1. The SvelteKit frontend is compiled into `build/`.
 2. Cargo builds the optimized Rust binary with all dependencies.
 3. Tauri packages the outputs into `.deb` and `.AppImage` bundles under:
@@ -102,6 +115,7 @@ During the build process:
 You have three options to install your build. **Option A is recommended** as it updates your existing system package cleanly.
 
 ### Option A: Install `.deb` Package (Recommended)
+
 This directly replaces `/usr/bin/llama-recipe-manager` and refreshes desktop menu icons:
 
 ```bash
@@ -109,6 +123,7 @@ sudo dpkg -i "src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.6.0_amd
 ```
 
 ### Option B: Replace Standalone Binary
+
 If you prefer not to use `dpkg`:
 
 ```bash
@@ -120,11 +135,13 @@ sudo cp src-tauri/target/release/llama-recipe-manager /usr/bin/llama-recipe-mana
 ```
 
 Or install it to your user binary path (`~/.local/bin`):
+
 ```bash
 cp src-tauri/target/release/llama-recipe-manager ~/.local/bin/llama-recipe-manager
 ```
 
 ### Option C: Run as AppImage
+
 Make the generated AppImage executable and place it in your applications directory:
 
 ```bash
@@ -166,14 +183,17 @@ error: script "tauri" exited with code 1
 ```
 
 #### Why does this happen?
+
 `src-tauri/tauri.conf.json` has `createUpdaterArtifacts: true` and an official `pubkey` for upstream GitHub Releases. After Tauri successfully creates the `.deb` and `.AppImage` packages, it attempts an extra step: creating cryptographically signed `.tar.gz.sig` files for the built-in auto-updater. Because the private key is only held by the upstream repository maintainer, Tauri errors on that final signature step.
 
 #### Is my build broken?
+
 **No.** Notice the lines immediately before the error:
 `Finished 3 bundles at: ...`
 The `.deb` installer and `.AppImage` are already 100% built, optimized, and ready to install!
 
 #### What to do:
+
 1. **Install the package that was just built:**
    ```bash
    sudo dpkg -i "src-tauri/target/release/bundle/deb/Llama Recipe Manager_0.6.0_amd64.deb"
@@ -182,4 +202,4 @@ The `.deb` installer and `.AppImage` are already 100% built, optimized, and read
    ```bash
    bun run tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'
    ```
-   *(Or `npx tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'`)*
+   _(Or `npx tauri build -c '{"bundle": {"createUpdaterArtifacts": false}}'`)_

@@ -63,7 +63,10 @@ fn format_recipe_section(out: &mut String, recipe: &Recipe) -> Result<(), String
     }
 
     if !recipe.description.is_empty() {
-        out.push_str(&format!("; description: {}\n", recipe.description.replace('\n', " ")));
+        out.push_str(&format!(
+            "; description: {}\n",
+            recipe.description.replace('\n', " ")
+        ));
     }
     if !recipe.tags.is_empty() {
         out.push_str(&format!("; tags: {}\n", recipe.tags));
@@ -141,7 +144,10 @@ fn is_value_token(token: &str) -> bool {
     }
     // Negative numbers like -1 or -0.5 are values, not flag options
     let after_minus = &token[1..];
-    after_minus.chars().next().map_or(false, |c| c.is_ascii_digit())
+    after_minus
+        .chars()
+        .next()
+        .map_or(false, |c| c.is_ascii_digit())
 }
 
 #[cfg(test)]
