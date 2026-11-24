@@ -30,7 +30,7 @@ pub struct Recipe {
     pub last_used_at: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateRecipe {
     pub name: String,
     pub description: String,
@@ -384,6 +384,35 @@ impl Database {
         validate_recipe_command_for_source(&input.command, RecipeSource::Community)?;
         input.name = self.unused_name(input.name.trim())?;
         self.create_recipe(input)
+    }
+
+    /// Create a recipe from a local import source (e.g. INI presets).
+    /// Enforces local flag policy and renames on name clashes.
+    pub fn import_local_recipe(&self, mut input: CreateRecipe) -> Result<Recipe, String> {
+        input.name = self.unused_name(input.name.trim())?;
+        self.create_recipe(input)
+    }
+
+    /// Import multiple recipes in a single SQLite transaction.
+    pub fn import_local_recipes_bulk(
+        &self,
+        inputs: Vec<CreateRecipe>,
+    ) -> Result<Vec<Recipe>, String> {
+        self.conn
+            .execute("BEGIN TRANSACTION", [])
+            .map_err(|e| e.to_string())?;
+        let mut results = Vec::with_capacity(inputs.len());
+        for input in inputs {
+            match self.import_local_recipe(input) {
+                Ok(recipe) => results.push(recipe),
+                Err(err) => {
+                    let _ = self.conn.execute("ROLLBACK", []);
+                    return Err(err);
+                }
+            }
+        }
+        self.conn.execute("COMMIT", []).map_err(|e| e.to_string())?;
+        Ok(results)
     }
 
     fn unused_name(&self, base: &str) -> Result<String, String> {

@@ -8,7 +8,7 @@ import { serverStore } from '$lib/stores/server.svelte';
 import { settingsStore } from '$lib/stores/settings.svelte';
 import type { Recipe, Section } from '$lib/types';
 import { notifyError } from '$lib/utils/notify';
-import { exportAllRecipesToIni, exportRecipeToIni } from '$lib/utils/ini';
+import { exportAllRecipesToIni, exportRecipeToIni, pickIniFileToImport } from '$lib/utils/ini';
 import { exportRecipeToFile, importRecipeFromFile } from '$lib/utils/ripe';
 import { webuiUrl } from '$lib/utils/server';
 
@@ -22,6 +22,8 @@ class AppStore {
   formDirty = $state(false);
   aboutOpen = $state(false);
   paletteOpen = $state(false);
+  importIniOpen = $state(false);
+  importIniInitialPath = $state<string | null>(null);
   /** Model path to prefill when a new recipe is started from the Models section. */
   draftModel = $state<string | null>(null);
 
@@ -161,6 +163,23 @@ class AppStore {
   async exportAllRecipesIni(): Promise<void> {
     try {
       await exportAllRecipesToIni();
+    } catch (e) {
+      notifyError(e);
+    }
+  }
+
+  async openImportIni(initialPath?: string): Promise<void> {
+    try {
+      if (initialPath) {
+        this.importIniInitialPath = initialPath;
+        this.importIniOpen = true;
+      } else {
+        const path = await pickIniFileToImport();
+        if (path) {
+          this.importIniInitialPath = path;
+          this.importIniOpen = true;
+        }
+      }
     } catch (e) {
       notifyError(e);
     }

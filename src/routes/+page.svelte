@@ -11,6 +11,7 @@
   import CommunitySidebar from '$lib/components/community/CommunitySidebar.svelte';
   import CommunityView from '$lib/components/community/CommunityView.svelte';
   import ModelsView from '$lib/components/models/ModelsView.svelte';
+  import ImportIniDialog from '$lib/components/recipes/ImportIniDialog.svelte';
   import RecipeDetail from '$lib/components/recipes/RecipeDetail.svelte';
   import RecipeForm from '$lib/components/recipes/RecipeForm.svelte';
   import Sidebar from '$lib/components/recipes/Sidebar.svelte';
@@ -224,3 +225,4 @@
 <CommandPalette />
 <ConfirmHost />
 <AboutDialog />
+<ImportIniDialog />

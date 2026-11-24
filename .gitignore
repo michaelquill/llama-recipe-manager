@@ -21,3 +21,9 @@ pnpm-lock.yaml
 *.key
 *.key.pub
 .tauri/
+
+# Local scripts and test presets
+build.sh
+example/
+sample_exports/
+*.ini

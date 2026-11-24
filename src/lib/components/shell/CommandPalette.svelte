@@ -3,6 +3,7 @@
   import Boxes from '@lucide/svelte/icons/boxes';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import FileDown from '@lucide/svelte/icons/file-down';
+  import FileInput from '@lucide/svelte/icons/file-input';
   import FileUp from '@lucide/svelte/icons/file-up';
   import Info from '@lucide/svelte/icons/info';
   import Pencil from '@lucide/svelte/icons/pencil';
@@ -39,7 +40,13 @@
         <Plus /> New recipe <Command.Shortcut>{modKey}N</Command.Shortcut>
       </Command.Item>
       <Command.Item value="import recipe ripe" onSelect={() => run(() => appStore.importRecipe())}>
-        <FileDown /> Import recipe…
+        <FileDown /> Import recipe (.ripe)…
+      </Command.Item>
+      <Command.Item
+        value="import recipes ini presets"
+        onSelect={() => run(() => appStore.openImportIni())}
+      >
+        <FileInput /> Import recipes from INI presets…
       </Command.Item>
       <Command.Item
         value="export all recipes ini"

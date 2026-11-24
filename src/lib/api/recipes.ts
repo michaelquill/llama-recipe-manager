@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { CreateRecipe, Recipe, UpdateRecipe } from '$lib/types';
+import type { CreateRecipe, ParsedIniFile, Recipe, UpdateRecipe } from '$lib/types';
 
 export function listRecipes(): Promise<Recipe[]> {
   return invoke('list_recipes');
@@ -43,4 +43,20 @@ export function exportAllRecipesIni(path: string): Promise<void> {
 
 export function importRecipe(path: string): Promise<Recipe> {
   return invoke('import_recipe', { path });
+}
+
+export function previewIniPresets(path: string): Promise<ParsedIniFile> {
+  return invoke('preview_ini_presets', { path });
+}
+
+export function importIniPresets(
+  path: string,
+  remaps: Record<string, string>,
+  selectedNames?: string[],
+): Promise<number> {
+  return invoke('import_ini_presets', {
+    path,
+    remaps,
+    selectedNames: selectedNames ?? null,
+  });
 }

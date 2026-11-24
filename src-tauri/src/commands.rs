@@ -130,6 +130,55 @@ pub mod recipes {
     }
 
     #[tauri::command]
+    pub fn preview_ini_presets(path: String) -> Result<ini::ParsedIniFile, String> {
+        let text = std::fs::read_to_string(&path)
+            .map_err(|e| format!("Failed to read {}: {}", path, e))?;
+        let empty_remaps = std::collections::HashMap::new();
+        Ok(ini::parse_ini_presets(&text, &empty_remaps))
+    }
+
+    #[tauri::command]
+    pub fn import_ini_presets(
+        state: tauri::State<AppState>,
+        path: String,
+        remaps: std::collections::HashMap<String, String>,
+        selected_names: Option<Vec<String>>,
+    ) -> Result<usize, String> {
+        let text = std::fs::read_to_string(&path)
+            .map_err(|e| format!("Failed to read {}: {}", path, e))?;
+        let parsed = ini::parse_ini_presets(&text, &remaps);
+
+        let selected_set: Option<std::collections::HashSet<String>> =
+            selected_names.map(|names| names.into_iter().collect());
+
+        let to_import: Vec<CreateRecipe> = parsed
+            .presets
+            .into_iter()
+            .filter(|p| {
+                if let Some(ref set) = selected_set {
+                    set.contains(&p.name)
+                } else {
+                    true
+                }
+            })
+            .map(|p| CreateRecipe {
+                name: p.name,
+                description: p.description,
+                command: p.command,
+                model_path: p.model_path,
+                mmproj_path: p.mmproj_path,
+                gpu_info: p.gpu_info,
+                tags: p.tags,
+            })
+            .collect();
+
+        let count = to_import.len();
+        let db = state.db.lock().map_err(|e| e.to_string())?;
+        db.import_local_recipes_bulk(to_import)?;
+        Ok(count)
+    }
+
+    #[tauri::command]
     pub fn import_recipe(state: tauri::State<AppState>, path: String) -> Result<Recipe, String> {
         let size = std::fs::metadata(&path)
             .map_err(|e| format!("Failed to read {}: {}", path, e))?

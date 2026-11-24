@@ -63,6 +63,8 @@ pub fn run() {
             commands::recipes::export_recipe,
             commands::recipes::export_recipe_ini,
             commands::recipes::export_all_recipes_ini,
+            commands::recipes::preview_ini_presets,
+            commands::recipes::import_ini_presets,
             commands::recipes::import_recipe,
             commands::server::get_llama_server_info,
             commands::models::scan_models,

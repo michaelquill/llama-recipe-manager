@@ -1,4 +1,4 @@
-import { save } from '@tauri-apps/plugin-dialog';
+import { open, save } from '@tauri-apps/plugin-dialog';
 
 import { exportAllRecipesIni, exportRecipeIni } from '$lib/api/recipes';
 import type { Recipe } from '$lib/types';
@@ -27,4 +27,14 @@ export async function exportAllRecipesToIni(): Promise<boolean> {
   if (!path) return false;
   await exportAllRecipesIni(path);
   return true;
+}
+
+/** Resolves the chosen file path, or null if cancelled. */
+export async function pickIniFileToImport(): Promise<string | null> {
+  const selected = await open({
+    multiple: false,
+    filters: FILTERS,
+  });
+  if (!selected) return null;
+  return typeof selected === 'string' ? selected : selected[0];
 }

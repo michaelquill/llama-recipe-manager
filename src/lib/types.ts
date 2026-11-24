@@ -27,6 +27,21 @@ export interface UpdateRecipe extends CreateRecipe {
   id: string;
 }
 
+export interface ParsedIniPreset {
+  name: string;
+  description: string;
+  model_path: string;
+  mmproj_path: string;
+  command: string;
+  gpu_info: string;
+  tags: string;
+}
+
+export interface ParsedIniFile {
+  presets: ParsedIniPreset[];
+  root_variables: Record<string, string>;
+}
+
 export interface Settings {
   host: string;
   port: number;
